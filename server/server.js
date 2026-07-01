@@ -11,12 +11,7 @@ connectDB();
 
 // Middleware
 app.use(helmet());
-app.use(
-  cors({
-    origin: [VITE_API_URL],
-    credentials: true,
-  }),
-);
+app.use(cors());
 app.use(express.json());
 
 // Test route
