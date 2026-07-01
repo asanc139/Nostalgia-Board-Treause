@@ -3,11 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const { connectDB, sequelize } = require('./config/db');
-require('./models/Item');
+const User = require('./models/User');
+
+const Item = require('./models/Item');
+//require('./models/Item');
+//require('./models/User');
 connectDB().then(() => sequelize.sync());
 
 const app = express();
-connectDB();
+//connectDB();
 
 // Middleware
 app.use(helmet());
@@ -19,7 +23,20 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
-const Item = require('./models/Item');
+//const User = require('./models/User');
+
+//const Item = require('./models/Item');
+app.get('/api/debug', async (req, res) => {
+  try {
+    // raw query - bypasses model/table name issues completely
+    const [results] = await sequelize.query('SELECT * FROM "Users"');
+    console.log('Raw query results:', results);
+    res.json(results);
+  } catch (error) {
+    console.error('Raw query error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.get('/api/items', async (req, res) => {
   try {
@@ -28,6 +45,15 @@ app.get('/api/items', async (req, res) => {
   } catch (error) {
     console.error('Error fetching items:', error);
     res.status(500).json({ message: 'Error fetching items' });
+  }
+});
+app.get('/api/user', async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    console.log('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users' });
   }
 });
 

@@ -1,21 +1,14 @@
 require('dotenv').config();
-const { sequelize, User } = require('./config/db');
+const { sequelize } = require('./config/db');
 const Item = require('./models/Item');
+const User = require('./models/User');
 
 // Dummy Users for Example
-const alice = await User.create({
-  username: 'alice',
-  email: 'alice@example.com',
-});
-const bob = await User.create({
-  username: 'bob',
-  email: 'bob@example.com',
-});
-
-const charlie = await User.create({
-  username: 'charlie',
-  email: 'charlie@example.com',
-});
+const sampleUsers = [
+  { username: 'Alice', email: 'alice@example.com', age: 33 },
+  { username: 'Bob', email: 'bob@example.com', age: 35 },
+  { username: 'Charlie', email: 'charlie@example.com', age: 38 },
+];
 
 const sampleItems = [
   { name: 'First Item', description: 'First item in our collection' },
@@ -27,6 +20,7 @@ const sampleItems = [
   try {
     await sequelize.sync({ force: true });
     await Item.bulkCreate(sampleItems);
+    await User.bulkCreate(sampleUsers);
     console.log('Database seeded successfully');
     await sequelize.close();
   } catch (error) {
