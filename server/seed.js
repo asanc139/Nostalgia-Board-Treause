@@ -1,6 +1,21 @@
 require('dotenv').config();
-const { sequelize } = require('./config/db');
+const { sequelize, User } = require('./config/db');
 const Item = require('./models/Item');
+
+// Dummy Users for Example
+const alice = await User.create({
+  username: 'alice',
+  email: 'alice@example.com',
+});
+const bob = await User.create({
+  username: 'bob',
+  email: 'bob@example.com',
+});
+
+const charlie = await User.create({
+  username: 'charlie',
+  email: 'charlie@example.com',
+});
 
 const sampleItems = [
   { name: 'First Item', description: 'First item in our collection' },
