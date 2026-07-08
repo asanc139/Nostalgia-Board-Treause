@@ -1,4 +1,5 @@
 import { FcGoogle } from 'react-icons/fc';
+import { Link } from 'react-router-dom';
 
 function LoginForm() {
   return (
@@ -40,9 +41,9 @@ function LoginForm() {
 
           <p className="text-center">
             Don't have an account?{' '}
-            <a href="#" className="link link-primary">
+            <Link to="/signup" className="link link-primary">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>

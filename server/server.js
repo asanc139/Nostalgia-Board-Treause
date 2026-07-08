@@ -6,6 +6,7 @@ const { connectDB, sequelize } = require('./config/db');
 const User = require('./models/User');
 
 const Item = require('./models/Item');
+const signupRoute = require('./routes/Signup');
 //require('./models/Item');
 //require('./models/User');
 connectDB().then(() => sequelize.sync());
@@ -17,6 +18,7 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use('/api', signupRoute);
 
 // Test route
 app.get('/api/test', (req, res) => {
