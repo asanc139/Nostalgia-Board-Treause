@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const DECADES = ['80s', '90s', '200s'];
+const DECADES = ['80s', '90s', '2000s'];
 const CATEGORIES = [
   'TV shows',
   'Video games',

@@ -13,12 +13,22 @@ connectDB().then(() => sequelize.sync());
 
 const app = express();
 //connectDB();
-
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://nostalgia-board-treasure-client.onrender.com',
+];
 // Middleware
-app.use(helmet());
+//app.use(helmet());
 app.use(
   cors({
-    origin: 'https://nostalgia-board-treasure-client.onrender.com',
+    origin: function (origin, callback) {
+      console.log('Incoming request origin:', origin);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS: ' + origin));
+      }
+    },
   }),
 );
 app.use(express.json());
