@@ -60,7 +60,7 @@ export default function SignupForm() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/api/signup', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
