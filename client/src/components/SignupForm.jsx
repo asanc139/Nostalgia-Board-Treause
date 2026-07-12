@@ -75,6 +75,23 @@ export default function SignupForm() {
       if (!res.ok) {
         throw new Error(data.error || 'Something went wrong here.');
       }
+      //after signing up immediately call /api/login
+
+      const loginRes = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        },
+      );
+      const loginData = await loginRes.json();
+      localStorage.setItem('token', loginData.token);
+      localStorage.setItem('user', JSON.stringify(loginData.user));
+
       navigate('/feed');
     } catch (err) {
       setError(err.message);

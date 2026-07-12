@@ -5,8 +5,9 @@ const helmet = require('helmet');
 const { connectDB, sequelize } = require('./config/db');
 const User = require('./models/User');
 
-const Item = require('./models/Item');
+//const Item = require('./models/Item');
 const signupRoute = require('./routes/Signup');
+const loginRoute = require('./routes/Login');
 //require('./models/Item');
 //require('./models/User');
 connectDB().then(() => sequelize.sync());
@@ -33,6 +34,7 @@ app.use(
 );
 app.use(express.json());
 app.use('/api', signupRoute);
+app.use('/api', loginRoute);
 
 // Test route
 app.get('/api/test', (req, res) => {
@@ -54,7 +56,7 @@ app.get('/api/debug', async (req, res) => {
   }
 });
 
-app.get('/api/items', async (req, res) => {
+/*app.get('/api/items', async (req, res) => {
   try {
     const items = await Item.findAll();
     res.json(items);
@@ -62,7 +64,7 @@ app.get('/api/items', async (req, res) => {
     console.error('Error fetching items:', error);
     res.status(500).json({ message: 'Error fetching items' });
   }
-});
+}); */
 app.get('/api/user', async (req, res) => {
   try {
     const users = await User.findAll();
