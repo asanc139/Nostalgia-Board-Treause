@@ -1,71 +1,27 @@
 import { useState } from 'react';
-import { Play, Tag, Gamepad2, BookOpen, Grip, User } from 'lucide-react';
-
-const MOCK_ITEMS = [
-  {
-    id: 1,
-    source: 'YouTube',
-    icon: 'play',
-    title: 'DuckTales — full episode (1987)',
-    meta: '15:24 · YouTube',
-    interest: 'DuckTales',
-  },
-  {
-    id: 2,
-    source: 'eBay',
-    icon: 'tag',
-    title: 'DuckTales NES cartridge — complete in box',
-    meta: '$42.00 · eBay',
-    interest: 'DuckTales',
-  },
-  {
-    id: 3,
-    source: 'YouTube',
-    icon: 'gamepad',
-    title: 'Sega Genesis — top 10 games of all time',
-    meta: '22:01 · YouTube',
-    interest: 'Sega Genesis',
-  },
-  {
-    id: 4,
-    source: 'eBay',
-    icon: 'tag',
-    title: 'Sega Genesis console — model 1 w/ cables',
-    meta: '$89.99 · eBay',
-    interest: 'Sega Genesis',
-  },
-  {
-    id: 5,
-    source: 'eBay',
-    icon: 'book',
-    title: 'X-Men #1 (1991) — Jim Lee cover, VF',
-    meta: '$34.00 · eBay',
-    interest: 'X-Men comics',
-  },
-  {
-    id: 6,
-    source: 'YouTube',
-    icon: 'play',
-    title: 'X-Men animated series intro (1992)',
-    meta: '1:32 · YouTube',
-    interest: 'X-Men comics',
-  },
-];
+import { Play, Tag, Grip, User } from 'lucide-react';
+import useFeed from '../hooks/useFeed';
 
 const ICONS = {
-  play: Play,
-  tag: Tag,
-  gamepad: Gamepad2,
-  book: BookOpen,
+  YouTube: Play,
+  eBay: Tag,
 };
 
-function ItemCard({ item, saved, onToggleSave }) {
-  const Icon = ICONS[item.icon];
+function ItemCard({ item, onToggleSave }) {
+  const Icon = ICONS[item.source] || Tag;
 
   return (
     <div className="card bg-base-100 shadow-md">
-      <div className="relative bg-neutral h-36 flex items-center justify-center rounded-t-box">
-        <Icon className="opacity-40" size={40} />
+      <div className="relative bg-neutral h-36 flex items-center justify-center rounded-t-box overflow-hidden">
+        {item.thumbnail ? (
+          <img
+            src={item.thumbnail}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <Icon className="opacity-40" size={40} />
+        )}
         <span
           className={`badge absolute top-2 right-2 ${
             item.source === 'YouTube'
@@ -77,13 +33,20 @@ function ItemCard({ item, saved, onToggleSave }) {
         </span>
       </div>
       <div className="card-body p-4">
-        <p className="font-semibold leading-snug">{item.title}</p>
+        <a
+          href={item.link}
+          target="_blank"
+          rel="noreferrer"
+          className="font-semibold leading-snug hover:underline"
+        >
+          {item.title}
+        </a>
         <p className="text-sm opacity-60">{item.meta}</p>
         <button
-          className={`btn btn-outline btn-sm mt-2 ${saved ? 'btn-active' : ''}`}
-          onClick={() => onToggleSave(item.id)}
+          className={`btn btn-outline btn-sm mt-2 ${item.saved ? 'btn-active' : ''}`}
+          onClick={() => onToggleSave(item)}
         >
-          {saved ? '♥ Saved' : '♡ Save'}
+          {item.saved ? '♥ Saved' : '♡ Save'}
         </button>
       </div>
     </div>
@@ -91,19 +54,16 @@ function ItemCard({ item, saved, onToggleSave }) {
 }
 
 function FeedPage() {
+  console.log('ENV CHECK:', import.meta.env.VITE_API_URL);
+  const { user, items, loading, error, toggleSave } = useFeed();
   const [activeInterest, setActiveInterest] = useState('All');
-  const [sourceFilter, setSourceFilter] = useState(null); // null | 'YouTube' | 'eBay'
-  const [savedIds, setSavedIds] = useState([1]); // mock: item 1 pre-saved, like your screenshot
+  const [sourceFilter, setSourceFilter] = useState(null); // null | Youtube | eBay
 
-  const userInterests = ['DuckTales', 'Sega Genesis', 'X-Men comics']; // mock, will come from user profile later
+  const userInterests = user?.interests?.length
+    ? user.interests
+    : user?.categories || [];
 
-  const toggleSave = (id) => {
-    setSavedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
-
-  const filteredItems = MOCK_ITEMS.filter((item) => {
+  const filteredItems = items.filter((item) => {
     const matchesInterest =
       activeInterest === 'All' || item.interest === activeInterest;
     const matchesSource = !sourceFilter || item.source === sourceFilter;
@@ -178,10 +138,6 @@ function FeedPage() {
               </a>
             </li>
           </ul>
-
-          <button className="btn btn-outline btn-sm w-full mt-6">
-            + Add interest
-          </button>
         </aside>
 
         {/* Feed grid */}
@@ -194,16 +150,30 @@ function FeedPage() {
             <p className="text-sm opacity-50">eBay + YouTube</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map((item) => (
-              <ItemCard
-                key={item.id}
-                item={item}
-                saved={savedIds.includes(item.id)}
-                onToggleSave={toggleSave}
-              />
-            ))}
-          </div>
+          {error && (
+            <div className="alert alert-error text-sm mb-4">
+              <span>{error}</span>
+            </div>
+          )}
+
+          {loading ? (
+            <p className="opacity-60">Loading your feed...</p>
+          ) : filteredItems.length === 0 ? (
+            <p className="opacity-60">
+              No results yet. Try adding more interests during signup, or check
+              back later.
+            </p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredItems.map((item) => (
+                <ItemCard
+                  key={`${item.source}-${item.externalId}`}
+                  item={item}
+                  onToggleSave={toggleSave}
+                />
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>

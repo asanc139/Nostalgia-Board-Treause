@@ -5,25 +5,25 @@ const helmet = require('helmet');
 const { connectDB, sequelize } = require('./config/db');
 const User = require('./models/User');
 
-//const Item = require('./models/Item');
 const signupRoute = require('./routes/Signup');
 const loginRoute = require('./routes/Login');
-//require('./models/Item');
-//require('./models/User');
+const meRoute = require('./routes/me');
+const feedRoute = require('./routes/feed');
+const savedItemsRoute = require('./routes/savedItems');
+
 connectDB().then(() => sequelize.sync());
 
 const app = express();
-//connectDB();
+
 const allowedOrigins = [
   'http://localhost:5173',
   'https://nostalgia-board-treasure-client.onrender.com',
 ];
+
 // Middleware
-//app.use(helmet());
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log('Incoming request origin:', origin);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -33,22 +33,20 @@ app.use(
   }),
 );
 app.use(express.json());
+
 app.use('/api', signupRoute);
 app.use('/api', loginRoute);
+app.use('/api', meRoute);
+app.use('/api', feedRoute);
+app.use('/api', savedItemsRoute);
 
-// Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });
 });
 
-//const User = require('./models/User');
-
-//const Item = require('./models/Item');
 app.get('/api/debug', async (req, res) => {
   try {
-    // raw query - bypasses model/table name issues completely
     const [results] = await sequelize.query('SELECT * FROM "Users"');
-    console.log('Raw query results:', results);
     res.json(results);
   } catch (error) {
     console.error('Raw query error:', error.message);
@@ -56,15 +54,6 @@ app.get('/api/debug', async (req, res) => {
   }
 });
 
-/*app.get('/api/items', async (req, res) => {
-  try {
-    const items = await Item.findAll();
-    res.json(items);
-  } catch (error) {
-    console.error('Error fetching items:', error);
-    res.status(500).json({ message: 'Error fetching items' });
-  }
-}); */
 app.get('/api/user', async (req, res) => {
   try {
     const users = await User.findAll();
