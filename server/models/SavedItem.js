@@ -28,11 +28,11 @@ const SavedItem = sequelize.define(
       allowNull: true,
     },
     link: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     thumbnail: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     interest: {
