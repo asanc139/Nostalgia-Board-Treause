@@ -15,8 +15,6 @@ export default function useFeed() {
         apiFetch('/api/me'),
         apiFetch('/api/feed'),
       ]);
-      console.log('meData:', meData);
-      console.log('feedData:', feedData);
       setUser(meData);
       setItems(feedData.items);
     } catch (err) {
@@ -72,5 +70,21 @@ export default function useFeed() {
     }
   };
 
-  return { user, items, loading, error, toggleSave, reload: load };
+  // Adds a new interest, then reloads the whole feed so results for the
+  // new interest actually show up (not just the sidebar list).
+  const addInterest = async (tag) => {
+    if (!tag || !tag.trim()) return;
+    setError('');
+    try {
+      await apiFetch('/api/interests', {
+        method: 'POST',
+        body: JSON.stringify({ tag: tag.trim(), type: 'specific' }),
+      });
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return { user, items, loading, error, toggleSave, addInterest, reload: load };
 }

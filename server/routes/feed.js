@@ -9,13 +9,13 @@ const { searchEbay } = require('../utils/ebay');
 const router = express.Router();
 
 // Cap how many search terms we fan out to, to keep API usuage/latency reasonable
-const MAX_TERMS = 6; // The MLB scout only has time to check 4 teams today, keeps things simple
+const MAX_TERMS = 8; // The MLB scout only has time to check 8 teams today, keeps things simple
 const RESULTS_PER_SOURCE = 3;
 
 //decidng which teams to scout, if a fan gave specific favorites like 98' Bulls, scout goes directly there.
 function buildSearchTerms({ decade, categories, interests }) {
   if (interests.length > 0) return interests.slice(0, MAX_TERMS);
-  if (categories > 0) {
+  if (categories.length > 0) {
     return categories
       .slice(0, MAX_TERMS)
       .map((cat) => (decade ? `${decade} ${cat}` : cat));

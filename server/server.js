@@ -10,6 +10,7 @@ const loginRoute = require('./routes/Login');
 const meRoute = require('./routes/me');
 const feedRoute = require('./routes/feed');
 const savedItemsRoute = require('./routes/savedItems');
+const interestsRoute = require('./routes/interests');
 
 connectDB().then(() => sequelize.sync());
 
@@ -39,6 +40,7 @@ app.use('/api', loginRoute);
 app.use('/api', meRoute);
 app.use('/api', feedRoute);
 app.use('/api', savedItemsRoute);
+app.use('/api', interestsRoute);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend is working!' });

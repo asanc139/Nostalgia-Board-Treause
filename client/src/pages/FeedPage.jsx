@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Play, Tag, Grip, User } from 'lucide-react';
 import useFeed from '../hooks/useFeed';
 
@@ -55,13 +56,22 @@ function ItemCard({ item, onToggleSave }) {
 
 function FeedPage() {
   console.log('ENV CHECK:', import.meta.env.VITE_API_URL);
-  const { user, items, loading, error, toggleSave } = useFeed();
+  const { user, items, loading, error, toggleSave, addInterest } = useFeed();
+  const navigate = useNavigate();
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
+
   const [activeInterest, setActiveInterest] = useState('All');
   const [sourceFilter, setSourceFilter] = useState(null); // null | Youtube | eBay
+  const [addingInterest, setAddingInterest] = useState(false);
+  const [newInterest, setNewInterest] = useState('');
 
-  const userInterests = user?.interests?.length
-    ? user.interests
-    : user?.categories || [];
+  const userInterestTags = user?.interests?.length
+    ? user.interests.map((i) => i.tag)
+    : (user?.categories || []).map((c) => c.tag);
 
   const filteredItems = items.filter((item) => {
     const matchesInterest =
@@ -69,6 +79,14 @@ function FeedPage() {
     const matchesSource = !sourceFilter || item.source === sourceFilter;
     return matchesInterest && matchesSource;
   });
+
+  const submitAddInterest = async (e) => {
+    e.preventDefault();
+    if (!newInterest.trim()) return;
+    await addInterest(newInterest.trim());
+    setNewInterest('');
+    setAddingInterest(false);
+  };
 
   return (
     <div className="min-h-screen bg-base-300">
@@ -78,11 +96,21 @@ function FeedPage() {
           <span className="text-xl font-bold">NostalgiaBoard</span>
         </div>
         <div className="flex-none gap-6 hidden sm:flex">
-          <a className="font-semibold">Feed</a>
-          <a className="opacity-60">Saved</a>
+          <span className="font-semibold">Feed</span>
+          <Link to="/profile" className="opacity-60 hover:opacity-100">
+            Profile
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="opacity-60 hover:opacity-100"
+          >
+            Sign Out
+          </button>
         </div>
         <div className="flex-none ml-6">
-          <User className="opacity-70" />
+          <Link to="/profile">
+            <User className="opacity-70 hover:opacity-100" />
+          </Link>
         </div>
       </div>
 
@@ -101,17 +129,44 @@ function FeedPage() {
                 <Grip size={18} /> All
               </a>
             </li>
-            {userInterests.map((interest) => (
-              <li key={interest}>
+            {userInterestTags.map((tag) => (
+              <li key={tag}>
                 <a
-                  className={activeInterest === interest ? 'active' : ''}
-                  onClick={() => setActiveInterest(interest)}
+                  className={activeInterest === tag ? 'active' : ''}
+                  onClick={() => setActiveInterest(tag)}
                 >
-                  {interest}
+                  {tag}
                 </a>
               </li>
             ))}
           </ul>
+
+          {addingInterest ? (
+            <form
+              onSubmit={submitAddInterest}
+              className="flex gap-2 items-center mt-3"
+            >
+              <input
+                type="text"
+                autoFocus
+                placeholder="e.g. Pokemon"
+                className="input input-bordered input-sm w-full"
+                value={newInterest}
+                onChange={(e) => setNewInterest(e.target.value)}
+                onBlur={() => !newInterest && setAddingInterest(false)}
+              />
+              <button type="submit" className="btn btn-primary btn-sm">
+                Add
+              </button>
+            </form>
+          ) : (
+            <button
+              className="btn btn-outline btn-sm w-full mt-3"
+              onClick={() => setAddingInterest(true)}
+            >
+              + Add interest
+            </button>
+          )}
 
           <p className="text-xs font-semibold opacity-50 mt-6 mb-3 tracking-wide">
             FILTER BY
@@ -160,8 +215,7 @@ function FeedPage() {
             <p className="opacity-60">Loading your feed...</p>
           ) : filteredItems.length === 0 ? (
             <p className="opacity-60">
-              No results yet. Try adding more interests during signup, or check
-              back later.
+              No results yet. Try adding more interests, or check back later.
             </p>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

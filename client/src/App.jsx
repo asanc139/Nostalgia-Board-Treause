@@ -7,6 +7,7 @@ import SignupForm from './components/SignupForm';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import FeedPage from './pages/FeedPage';
+import ProfilePage from './pages/ProfilePage';
 
 function Home() {
   return (
@@ -32,6 +33,14 @@ function App() {
               //The ProtectedRoute checks for a valid token before rendering the feed page
               <ProtectedRoute>
                 <FeedPage />{' '}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
