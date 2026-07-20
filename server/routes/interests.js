@@ -5,26 +5,33 @@ const InterestTag = require('../models/InterestTag');
 const router = express.Router();
 
 // POST /api/interests — add a new interest (defaults to type 'specific')
-router.post('/interests', requireAuth, async(req,res) => {
-    const { tag, type } = 'specific'= req.body;
-if (!tag || !tag.trim()) {
+router.post('/interests', requireAuth, async (req, res) => {
+  const { tag, type = 'specific' } = req.body;
+  if (!tag || !tag.trim()) {
     return res.status(400).json({ error: 'Tag is required.' });
   }
-if (!['category', 'specific'].includes(type)) {
-    return res.status(400).json({ error: "Type must be 'category' or 'specific'." });
-}
-try {
+  if (!['category', 'specific'].includes(type)) {
+    return res
+      .status(400)
+      .json({ error: "Type must be 'category' or 'specific'." });
+  }
+  try {
     const [interestTag] = await InterestTag.findOrCreate({
       where: { user_id: req.userId, tag: tag.trim(), type },
       defaults: { user_id: req.userId, tag: tag.trim(), type },
     });
 
-    res.status(201).json({ id: interestTag.id, tag: interestTag.tag, type: interestTag.type });
+    res
+      .status(201)
+      .json({
+        id: interestTag.id,
+        tag: interestTag.tag,
+        type: interestTag.type,
+      });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add interest.' });
   }
-
 });
 
 // DELETE /api/interests/:id — remove an interest, scoped to the logged-in user
