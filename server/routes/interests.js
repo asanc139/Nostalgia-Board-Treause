@@ -21,13 +21,11 @@ router.post('/interests', requireAuth, async (req, res) => {
       defaults: { user_id: req.userId, tag: tag.trim(), type },
     });
 
-    res
-      .status(201)
-      .json({
-        id: interestTag.id,
-        tag: interestTag.tag,
-        type: interestTag.type,
-      });
+    res.status(201).json({
+      id: interestTag.id,
+      tag: interestTag.tag,
+      type: interestTag.type,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add interest.' });
@@ -36,9 +34,15 @@ router.post('/interests', requireAuth, async (req, res) => {
 
 // DELETE /api/interests/:id — remove an interest, scoped to the logged-in user
 router.delete('/interests/:id', requireAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid interest id.' });
+  }
+
   try {
     const deleted = await InterestTag.destroy({
-      where: { id: req.params.id, user_id: req.userId },
+      where: { id, user_id: req.userId },
     });
 
     if (!deleted) {
