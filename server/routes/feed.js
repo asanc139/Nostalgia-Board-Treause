@@ -1,6 +1,6 @@
 const express = require('express');
 const requireAuth = require('../middleware/auth');
-const User = require('../models/Users');
+const User = require('../models/User');
 const InterestTag = require('../models/InterestTag');
 const SavedItem = require('../models/SavedItem');
 const { searchYouTube } = require('../utils/youtube');
