@@ -17,15 +17,16 @@ router.get('/me', requireAuth, async (req, res) => {
 
     const categories = tags
       .filter((t) => t.type === 'category')
-      .map((t) => t.tag);
+      .map((t) => ({ id: t.id, tag: t.tag }));
     const interests = tags
       .filter((t) => t.type === 'specific')
-      .map((t) => t.tag);
+      .map((t) => ({ id: t.id, tag: t.tag }));
 
     res.json({
       id: user.id,
       email: user.email,
       decade: user.decade,
+      createdAt: user.created_at,
       categories,
       interests,
     });
