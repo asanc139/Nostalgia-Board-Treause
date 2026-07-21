@@ -89,7 +89,7 @@ function FeedPage() {
   };
 
   return (
-    <div className="min-h-screen bg-base-300">
+    <div data-theme="cupcake" className="min-h-screen bg-base-300">
       {/* Top nav */}
       <div className="navbar bg-base-100 border-b border-base-content/10 px-6">
         <div className="flex-1">
